@@ -16,7 +16,7 @@ import {
 import type { LinksFunction, LoaderFunctionArgs } from "@remix-run/node";
 // existing imports
 
-import styles from "../app/app.css";
+import appStylesHref from "../app/app.css?url";
 import { createEmptyContact, getContacts } from "./data";
 import { useEffect} from "react";
 
@@ -24,8 +24,9 @@ import { useEffect} from "react";
 
 
 export const links: LinksFunction = () => [
-  { rel: "stylesheet", href: styles },
+  { rel: "stylesheet", href: appStylesHref },
 ];
+
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const url = new URL(request.url);

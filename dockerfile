@@ -1,23 +1,34 @@
-FROM node:18-alpine AS base
- 
-FROM base AS deps
-RUN apk add --no-cache libc6-compat
+# Use a base image
+FROM node:18 AS builder
+
+# Set the working directory
 WORKDIR /app
+
+# Copy package.json and package-lock.json
 COPY package.json package-lock.json ./
-RUN npm ci
- 
-FROM base AS builder
-WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
+
+# Install dependencies
+RUN npm install
+
+# Copy the rest of the application files
 COPY . .
-RUN npm run build && npm cache clean --force
- 
-FROM base AS runner
+
+# Build the Remix application
+RUN npm run build
+
+# Start a new stage for production
+FROM node:18 AS runner
+
+# Set the working directory for the runner
 WORKDIR /app
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 remix
-COPY --from=builder /app .
-USER remix
+
+# Copy built files from the builder stage
+COPY --from=builder /app/build ./build
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/node_modules ./node_modules
+
+# Expose the port the app runs on
 EXPOSE 3000
-ENV PORT 3000
-CMD ["npm", "run", "start"]
+
+# Start the application
+CMD ["npm", "start"]

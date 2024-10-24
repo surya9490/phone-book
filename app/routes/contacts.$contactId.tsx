@@ -6,7 +6,10 @@ import type {
   LoaderFunctionArgs,
 } from "@remix-run/node";
 import invariant from "tiny-invariant";
-import { fetchData } from "@remix-run/react/dist/data";
+
+
+
+
 
 
 
@@ -46,7 +49,7 @@ const { contact } = useLoaderData<typeof loader>()
           ) : (
             <i>No Name</i>
           )}{" "}
-          <Favorite contact={contact} />
+          <Favorite isFavorite = {contact.favorite ?? false} />
         </h1>
 
         {contact.twitter ? (
@@ -86,13 +89,11 @@ const { contact } = useLoaderData<typeof loader>()
   );
 }
 
-const Favorite: FunctionComponent<{
-  contact: Pick<ContactRecord, "favorite">;
-}> = ({ contact }) => {
+const Favorite: FunctionComponent<{ isFavorite: boolean }>= ({ isFavorite }) => {
   const fetcher = useFetcher();
   const favorite = fetcher.formData
   ? fetcher.formData.get("favorite") === "true"
-  : contact.favorite;
+  : isFavorite;
 
   return (
     <fetcher.Form method="post">
